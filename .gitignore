@@ -1,18 +1,15 @@
-# Build and Release Folders
-bin-debug/
-bin-release/
-[Oo]bj/
-[Bb]in/
+# Dependencias
+node_modules/
 
-# Other files and folders
-.settings/
+# Sesión y credenciales de WhatsApp
+sesion/
+auth_info_baileys/
 
-# Executables
-*.swf
-*.air
-*.ipa
-*.apk
+# Variables de entorno y secretos
+.env
+.env.*
+!.env.example
 
-# Project files, i.e. `.project`, `.actionScriptProperties` and `.flexProperties`
-# should NOT be excluded as they contain compiler settings and other important
-# information for Eclipse / Flash Builder.
+# Logs
+*.log
+npm-debug.log*
