@@ -133,7 +133,7 @@ async function startBot() {
     }
   });
 
-  if (!sock.authState.creds.registered) {
+  if (!state.creds.registered) {
     try {
       const number = await askForPhoneNumber();
       const pairingCode = await sock.requestPairingCode(number);
