@@ -1,126 +1,53 @@
 # Galaxy-bot
-Bot automatizado de whatsapp
- 
-{
-  "name": "galaxito-sub-bot",
-  "version": "1.0.0",
-  "description": "Bot de WhatsApp Galaxito Sub Bot",
-  "main": "index.js",
-  "scripts": {
-    "start": "node index.js"
-  },
-  "engines": {
-    "node": ">=20"
-  },
-  "dependencies": {
-    "@whiskeysockets/baileys": "latest",
-    "pino": "latest"
-  }
-}
-  
-const {
-  default: makeWASocket,
-  useMultiFileAuthState,
-  DisconnectReason
-} = require("@whiskeysockets/baileys");
 
-const pino = require("pino");
-const readline = require("readline");
+**Galaxito Sub Bot** es un bot de WhatsApp desarrollado con Node.js y Baileys.
 
-const rl = readline.createInterface({
-  input: process.stdin,
-  output: process.stdout
-});
+## Requisitos
 
-const preguntar = (texto) =>
-  new Promise((resolve) =>
-    rl.question(texto, resolve)
-  );
+- Node.js 20 o superior
+- npm
+- Una cuenta de WhatsApp para vincular el dispositivo
 
-async function iniciarBot() {
-  const { state, saveCreds } =
-    await useMultiFileAuthState("./sesion");
+## Instalación
 
-  const sock = makeWASocket({
-    auth: state,
-    logger: pino({ level: "silent" }),
-    printQRInTerminal: false
-  });
+1. Clona este repositorio.
+2. Instala las dependencias:
 
-  if (!sock.authState.creds.registered) {
-    let numero = await preguntar(
-      "Escribe tu número con código de país: "
-    );
+   ```bash
+   npm install
+   ```
 
-    numero = numero.replace(/\D/g, "");
+3. Inicia el bot:
 
-    const codigo = await sock.requestPairingCode(numero);
+   ```bash
+   npm start
+   ```
 
-    console.log("Tu código de vinculación es:", codigo);
-    console.log("Vincula el bot desde WhatsApp.");
-  }
+4. En el primer inicio, escribe tu número de WhatsApp con código de país, solo números.
+5. El terminal mostrará un código de vinculación. En WhatsApp abre **Dispositivos vinculados > Vincular un dispositivo > Vincular con número de teléfono** e introduce el código.
 
-  sock.ev.on("creds.update", saveCreds);
+La sesión se guarda localmente en la carpeta `sesion/`. No compartas esa carpeta ni la subas a GitHub.
 
-  sock.ev.on("connection.update", async (update) => {
-    const { connection, lastDisconnect } = update;
+## Comandos disponibles
 
-    if (connection === "open") {
-      console.log("¡Galaxito Sub Bot está conectado!");
-      rl.close();
-    }
+| Comando | Función |
+| --- | --- |
+| `.menu` | Muestra el menú |
+| `.ping` | Comprueba que el bot responde |
+| `.info` | Muestra información del bot |
 
-    if (connection === "close") {
-      const error = lastDisconnect?.error;
-      const status = error?.output?.statusCode;
+## Ejecución continua
 
-      if (status !== DisconnectReason.loggedOut) {
-        console.log("Reconectando...");
-        iniciarBot();
-      } else {
-        console.log("Sesión cerrada. Debes vincular nuevamente.");
-      }
-    }
-  });
+Para mantener el bot activo se necesita un servidor o proveedor de hosting compatible con Node.js 20+. Configura el comando de inicio como `npm start` y conserva el almacenamiento de la carpeta `sesion/` entre reinicios.
 
-  sock.ev.on("messages.upsert", async ({ messages }) => {
-    for (const msg of messages) {
-      if (!msg.message || msg.key.fromMe) continue;
+## Seguridad
 
-      const chat = msg.key.remoteJid;
-      if (!chat) continue;
+- Nunca publiques códigos de vinculación, credenciales ni la carpeta `sesion/`.
+- No compartas archivos `.env` ni secretos.
+- Usa el bot respetando las condiciones de WhatsApp y evita mensajes masivos no solicitados.
 
-      const texto =
-        msg.message.conversation ||
-        msg.message.extendedTextMessage?.text ||
-        "";
+## Tecnologías
 
-      const comando = texto.trim().toLowerCase();
-
-      if (comando === ".menu") {
-        await sock.sendMessage(chat, {
-          text: `🌌 GALAXITO SUB BOT
-
-¡Hola! Soy Galaxito :3
-
-Comandos disponibles:
-.ping - Verificar el bot
-.menu - Mostrar este menú`
-        });
-      }
-
-      if (comando === ".ping") {
-        await sock.sendMessage(chat, {
-          text: "¡Pong! 🐾 Galaxito está activo."
-        });
-      }
-    }
-  });
-}
-
-iniciarBot().catch(console.error);
-  
-node_modules/
-sesion/
-.env
-  
+- Node.js
+- Baileys
+- Pino
